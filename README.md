@@ -1,6 +1,3 @@
-# Read Me First
-
-
 # Getting Started
 
 * Please run 
