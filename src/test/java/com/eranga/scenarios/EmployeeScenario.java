@@ -35,20 +35,20 @@ public class EmployeeScenario extends Scenario {
             .header("Content-Type", "application/json")
             .check(checkSession(HttpStatus.OK.value()));
 
-        return scenario(SCENARIO_EMPLOYEE).group(GROUP_EMPLOYEE).on(exitBlockOnFail(
+        return scenario(SCENARIO_EMPLOYEE).group(GROUP_EMPLOYEE).on(
             exec(create(createEmployee)).exec(read(readEmployee))
-        ));
+        );
 
     }
 
     private ChainBuilder create(HttpRequestActionBuilder httpRequestActionBuilder) {
         return exec(feed(FEED_DATA), feed(HTTP_HEADER_DATA),
-            exec(httpRequestActionBuilder).exitHereIfFailed().exec(supplyReconcile(HttpStatus.CREATED.value())));
+            exec(httpRequestActionBuilder).exec(supplyReconcile(HttpStatus.CREATED.value())));
     }
 
     private ChainBuilder read(HttpRequestActionBuilder httpRequestActionBuilder) {
         return exec(feed(FEED_DATA), feed(HTTP_HEADER_DATA),
-            exec(httpRequestActionBuilder).exitHereIfFailed().exec(supplyReconcile(HttpStatus.OK.value())));
+            exec(httpRequestActionBuilder).exec(supplyReconcile(HttpStatus.OK.value())));
     }
 
 }
