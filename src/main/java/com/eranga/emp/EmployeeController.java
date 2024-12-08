@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -31,8 +32,9 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public Employee getEmployeeWithId(@PathVariable("id") Long id) {
-        log.info("Getting employee with ID '{}'", id);
+    public Employee getEmployeeWithId(@RequestHeader("x-correlationId") String correlationId,
+        @PathVariable("id") Long id) {
+        log.info("x-correlationId= {} | Getting employee with ID '{}'", correlationId, id);
 
         List<Employee> allEmployees = createEmployees();
         return allEmployees.get(ThreadLocalRandom.current()
@@ -40,10 +42,12 @@ public class EmployeeController {
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Void> addEmployee(@RequestBody EmployeeCreationRequest request,
+    public ResponseEntity<Void> addEmployee(@RequestHeader("x-correlationId") String correlationId,
+        @RequestBody EmployeeCreationRequest request,
         UriComponentsBuilder uriComponentsBuilder) {
 
-        log.info("Creating new employee with employeeName: {}", request.getEmpName());
+        log.info("x-correlationId= {} | Creating new employee with employeeName: {}", correlationId,
+            request.getEmpName());
 
         URI location = uriComponentsBuilder.path("/api/employees/{id}")
             .buildAndExpand("99")

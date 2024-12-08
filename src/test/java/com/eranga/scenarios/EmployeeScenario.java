@@ -3,6 +3,7 @@ package com.eranga.scenarios;
 import static com.eranga.common.Constants.GROUP_EMPLOYEE;
 import static com.eranga.common.Constants.SCENARIO_EMPLOYEE;
 import static com.eranga.feeder.Feeders.FEED_DATA;
+import static com.eranga.feeder.Feeders.HTTP_HEADER_DATA;
 import static io.gatling.javaapi.core.CoreDsl.StringBody;
 import static io.gatling.javaapi.core.CoreDsl.exec;
 import static io.gatling.javaapi.core.CoreDsl.exitBlockOnFail;
@@ -18,11 +19,13 @@ import org.springframework.http.HttpStatus;
 
 public class EmployeeScenario extends Scenario {
 
+
     public ScenarioBuilder getScenario() {
 
         HttpRequestActionBuilder createEmployee = http("create-employee-request")
             .post("/api/employees")
             .header("Content-Type", "application/json")
+            .header("x-correlationId", "#{correlationId}")
             .body(StringBody("{ \"empName\": \"${empName}\" }"))
             .check(header("Location").saveAs("location"))
             .check(checkSession(HttpStatus.CREATED.value()));
@@ -39,11 +42,13 @@ public class EmployeeScenario extends Scenario {
     }
 
     private ChainBuilder create(HttpRequestActionBuilder httpRequestActionBuilder) {
-        return exec(feed(FEED_DATA),exec(httpRequestActionBuilder).exitHereIfFailed().exec(supplyReconcile(HttpStatus.CREATED.value())));
+        return exec(feed(FEED_DATA), feed(HTTP_HEADER_DATA),
+            exec(httpRequestActionBuilder).exitHereIfFailed().exec(supplyReconcile(HttpStatus.CREATED.value())));
     }
 
     private ChainBuilder read(HttpRequestActionBuilder httpRequestActionBuilder) {
-        return exec(feed(FEED_DATA),exec(httpRequestActionBuilder).exitHereIfFailed().exec(supplyReconcile(HttpStatus.OK.value())));
+        return exec(feed(FEED_DATA), feed(HTTP_HEADER_DATA),
+            exec(httpRequestActionBuilder).exitHereIfFailed().exec(supplyReconcile(HttpStatus.OK.value())));
     }
 
 }
